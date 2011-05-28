@@ -22,9 +22,13 @@ module EPP
     # Set the connection timeout, default: 60 sec
     attr_accessor :timeout
 
+    # Show debug output
+    attr_accessor :debug
+
     def initialize
       @port ||= 700
       @ssl ||= true
+      @debug ||= false
       if(!@certificate.nil?)
         @ssl = true
       end
@@ -32,6 +36,10 @@ module EPP
 
     def [](option)
       send(option)
+    end
+
+    def debug?
+      self.debug
     end
   end
 end
