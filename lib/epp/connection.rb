@@ -40,13 +40,21 @@ module EPP
     end
 
     def hello
+      xml = EPP::Builder.new
+      xml.epp_base do
+        xml.hello
+      end
+      return request(xml.target!)
     end
 
     def hello_raw
-      command = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><epp xmlns="urn:ietf:params:xml:ns:epp-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd"> <hello/> </epp>'
+      command = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>'+
+        '<epp xmlns="urn:ietf:params:xml:ns:epp-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '+
+        'xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">'+
+        '<hello/>'+
+        '</epp>'
       request(command)
     end
-    
 
     def request(msg)
       write_socket(msg)
@@ -56,22 +64,22 @@ module EPP
     def login
     end
 
-    private
+  private
 
     attr_reader :host, :port, :username, :password, :ssl, :timeout, :certificate
     attr_accessor :socket
 
-    protected
+  protected
 
     def read_socket
       length = @socket.read(4).unpack("N").first
       data = @socket.read(length - 4)
-      puts "read:\n" + data if EPP.debug?
+      puts Term::ANSIColor.yellow+data+"\n\n" if EPP.debug?
       data
     end
 
     def write_socket(xml)
-      puts "write:\n" + xml + "SENDING END\n\n" if EPP.debug?
+      puts Term::ANSIColor.green+xml + "\n\n" if EPP.debug?
       @socket.write([(xml.size + 4)].pack("N") + xml)
     end
     
