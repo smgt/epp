@@ -25,10 +25,14 @@ module EPP
     # Show debug output
     attr_accessor :debug
 
+    # Set the default cltrid
+    attr_accessor :cltrid
+
     def initialize
       @port ||= 700
       @ssl ||= true
       @debug ||= false
+      @cltrid ||= "eppgem"
       if(!@certificate.nil?)
         @ssl = true
       end
@@ -41,5 +45,6 @@ module EPP
     def debug?
       self.debug
     end
+
   end
 end
