@@ -41,92 +41,94 @@ To initialize the EPP gem:
 
 Check if contacts are available at the server:
 
-  # Check if one contact is available
-  EPP::Contact.available?("janedoe-001")
-  # => true
+    # Check if one contact is available
+    EPP::Contact.available?("janedoe-001")
+    # => true
 
-  # Lookup multiple contacts
-  EPP::Contact.available?(%w(janedoe-001 jamesdoe-001 rambo-003))
-  # => {"janedoe-001" => {:available => true, :reason => ""}, "jamesdoe-001" => {:available => true, :reason => ""}, "rambo-003" => {:available => false, :reason => "In use"}}
+    # Lookup multiple contacts
+    EPP::Contact.available?(%w(janedoe-001 jamesdoe-001 rambo-003))
+    # => {"janedoe-001" => {:available => true, :reason => ""}, "jamesdoe-001" 
+    => {:available => true, :reason => ""}, "rambo-003" => {:available => 
+    false, :reason => "In use"}}
 
 Retrieve information associated with a contact:
 
-  # Trying to find a non-existing contact
-  EPP::Contact.find("janedoe-001")
-  # => false
+    # Trying to find a non-existing contact
+    EPP::Contact.find("janedoe-001")
+    # => false
 
-  # Lookup a existing contact
-  EPP::Contact.find("rambo-003")
-  # => #<EPP::Contact name: "Rambo", organisation: "USA", city: "Jungle",
-  country: "US", email: "killkillkill@hotmale.com", client_id: "rambo-003">
+    # Lookup a existing contact
+    EPP::Contact.find("rambo-003")
+    # => #<EPP::Contact name: "Rambo", organisation: "USA", city: "Jungle",
+    country: "US", email: "killkillkill@hotmale.com", client_id: "rambo-003">
 
-  # On some EPP implementations requires a password to access contacts
-  EPP::Contact.find("rambo-004", :password => "red5unset")
-  # => #<EPP::Contact name: "Rambo", organisation: "USA", city: "Jungle",
-  country: "US", email: "killkillkill@hotmale.com", client_id: "rambo-004">
+    # On some EPP implementations requires a password to access contacts
+    EPP::Contact.find("rambo-004", :password => "red5unset")
+    # => #<EPP::Contact name: "Rambo", organisation: "USA", city: "Jungle",
+    country: "US", email: "killkillkill@hotmale.com", client_id: "rambo-004">
 
 Create a new contact:
 
-  contact = EPP::Contact.new
+    contact = EPP::Contact.new
 
-  # Supply some information to the object
-  contact.name = "Jane Doe"
-  contact.organisation = "Acme Corp" # Optional
-  contact.street = "Street 1337" # Optional
-  contact.city = "Metropolis"
-  contact.region = "Wonderland" # Optional
-  contact.zip = "123456" # Optional
-  contact.country = "NA"
-  contact.voice = "+12.34567890" # Optional
-  contact.fax = "+12.34567890" # Optional
-  contact.email = "jane@wonderland.local"
-  contact.client_id = "janedoe-001"
-  contact.password = "secret"
-  contact.disclose_email = true # Optional
-  contact.disclose_voice = false # Optional
-  
-  # Now create the contact at the EPP server
-  contact.save
-  # => #<EPP::Respone message: "Command completed successfully" response_code:
- 1000>
+    # Supply some information to the object
+    contact.name = "Jane Doe"
+    contact.organisation = "Acme Corp" # Optional
+    contact.street = "Street 1337" # Optional
+    contact.city = "Metropolis"
+    contact.region = "Wonderland" # Optional
+    contact.zip = "123456" # Optional
+    contact.country = "NA"
+    contact.voice = "+12.34567890" # Optional
+    contact.fax = "+12.34567890" # Optional
+    contact.email = "jane@wonderland.local"
+    contact.client_id = "janedoe-001"
+    contact.password = "secret"
+    contact.disclose_email = true # Optional
+    contact.disclose_voice = false # Optional
+    
+    # Now create the contact at the EPP server
+    contact.save
+    # => #<EPP::Respone message: "Command completed successfully" response_code:
+    1000>
 
-  # Failing to create a contact
-  contact.save
-  # => #<EPP::Response message: "" response_code:>
+    # Failing to create a contact
+    contact.save
+    # => #<EPP::Response message: "" response_code:>
 
 Delete a contact
 
-  # You can either find and delete a EPP::Contact class
-  EPP::Contact.delete("janedoe-001")
-  # => #<EPP::Response message: "", response_code: 1001>
+    # You can either find and delete a EPP::Contact class
+    EPP::Contact.delete("janedoe-001")
+    # => #<EPP::Response message: "", response_code: 1001>
 
-  # Or you can delete the EPP::Contact object
-  contact = EPP::Contact.find("rambo-003")
-  # => #<EPP::Contact name: "Rambo", organisation: "USA", city: "Jungle",
-  country: "US", email: "killkillkill@hotmale.com", client_id: "rambo-003">
-  contact.delete
-  # => #<EPP::Response message: "", response_code:>
+    # Or you can delete the EPP::Contact object
+    contact = EPP::Contact.find("rambo-003")
+    # => #<EPP::Contact name: "Rambo", organisation: "USA", city: "Jungle",
+    country: "US", email: "killkillkill@hotmale.com", client_id: "rambo-003">
+    contact.delete
+    # => #<EPP::Response message: "", response_code:>
 
 Transfer a contact
 
-  # Transfer a contact from another operator
+    # Transfer a contact from another operator
 
-  # Query the status of a ongoing transfer
+    # Query the status of a ongoing transfer
 
 Update a contact
 
-  # Find and update a contact
-  contact = EPP::Contact.find("janedoe-001")
-  # => #<EPP::Contact name: "Jane Doe", organisation: "Acme Corp", street:
-  "Street 1337", city: "Metropolis", region: "Wonderland", zip: 123456, country:
-  "NA", voice: "+12.34567890", fax: "+12.34567890", email: 
-  "jane@wonderland.local", client_id: "janedoe-001", password: "secret", 
-  disclose_email: true, disclose_voice: false, message: "Command completed
-  successfully" response_code: 2011>
+    # Find and update a contact
+    contact = EPP::Contact.find("janedoe-001")
+    # => #<EPP::Contact name: "Jane Doe", organisation: "Acme Corp", street:
+    "Street 1337", city: "Metropolis", region: "Wonderland", zip: 123456, 
+    country: "NA", voice: "+12.34567890", fax: "+12.34567890", email: 
+    "jane@wonderland.local", client_id: "janedoe-001", password: "secret", 
+    disclose_email: true, disclose_voice: false, message: "Command completed
+    successfully" response_code: 2011>
 
-  # Update the organisation
-  contact.organisation = "Acme Corp United"
-  # => "Acme Corp United"
+    # Update the organisation
+    contact.organisation = "Acme Corp United"
+    # => "Acme Corp United"
 
-  # Save the changes
-  contact.save
+    # Save the changes
+    contact.save
