@@ -1,0 +1,1399 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema targetNamespace="urn:ietf:params:xml:ns:eppcom-1.0"
+xmlns:eppcom="urn:ietf:params:xml:ns:eppcom-1.0"
+elementFormDefault="qualified">
+  <annotation>
+    <documentation>Extensible Provisioning Protocol v1.0 shared structures
+    schema.</documentation>
+  </annotation>
+  <!--
+   Object authorization information types.
+   -->
+  <complexType name="pwAuthInfoType">
+    <simpleContent>
+      <extension base="normalizedString">
+        <attribute name="roid" type="eppcom:roidType" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <complexType name="extAuthInfoType">
+    <sequence>
+      <any namespace="##other" />
+    </sequence>
+  </complexType>
+  <!--
+   <check> response types.
+   -->
+  <complexType name="reasonType">
+    <simpleContent>
+      <extension base="eppcom:reasonBaseType">
+        <attribute name="lang" type="language" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <simpleType name="reasonBaseType">
+    <restriction base="token">
+      <minLength value="1" />
+      <maxLength value="32" />
+    </restriction>
+  </simpleType>
+  <!--
+   Abstract client and object identifier type.
+   -->
+  <simpleType name="clIDType">
+    <restriction base="token">
+      <minLength value="3" />
+      <maxLength value="16" />
+    </restriction>
+  </simpleType>
+  <!--
+   DNS label type.
+   -->
+  <simpleType name="labelType">
+    <restriction base="token">
+      <minLength value="1" />
+      <maxLength value="255" />
+    </restriction>
+  </simpleType>
+  <!--
+   Non-empty token type.
+   -->
+  <simpleType name="minTokenType">
+    <restriction base="token">
+      <minLength value="1" />
+    </restriction>
+  </simpleType>
+  <!--
+   Repository Object IDentifier type.
+   -->
+  <simpleType name="roidType">
+    <restriction base="token">
+      <pattern value="(\w|_){1,80}-\w{1,8}" />
+    </restriction>
+  </simpleType>
+  <!--
+   Transfer status identifiers.
+   -->
+  <simpleType name="trStatusType">
+    <restriction base="token">
+      <enumeration value="clientApproved" />
+      <enumeration value="clientCancelled" />
+      <enumeration value="clientRejected" />
+      <enumeration value="pending" />
+      <enumeration value="serverApproved" />
+      <enumeration value="serverCancelled" />
+    </restriction>
+  </simpleType>
+  <!--
+   End of schema.
+   -->
+</schema>
+
+<?xml version="1.0" encoding="utf-8"?>
+<schema targetNamespace="urn:ietf:params:xml:ns:epp-1.0"
+xmlns:epp="urn:ietf:params:xml:ns:epp-1.0"
+xmlns:eppcom="urn:ietf:params:xml:ns:eppcom-1.0"
+elementFormDefault="qualified">
+  <!--
+   Import common element types.
+   -->
+  <import namespace="urn:ietf:params:xml:ns:eppcom-1.0" />
+  <annotation>
+    <documentation>Extensible Provisioning Protocol v1.0
+    schema.</documentation>
+  </annotation>
+  <!--
+   Every EPP XML instance must begin with this element.
+   -->
+  <element name="epp" type="epp:eppType" />
+  <!--
+   An EPP XML instance must contain a greeting, hello, command,
+   response, or extension.
+   -->
+  <complexType name="eppType">
+    <choice>
+      <element name="greeting" type="epp:greetingType" />
+      <element name="hello" />
+      <element name="command" type="epp:commandType" />
+      <element name="response" type="epp:responseType" />
+      <element name="extension" type="epp:extAnyType" />
+    </choice>
+  </complexType>
+  <!--
+   A greeting is sent by a server in response to a client connection
+   or <hello>.
+   -->
+  <complexType name="greetingType">
+    <sequence>
+      <element name="svID" type="epp:sIDType" />
+      <element name="svDate" type="dateTime" />
+      <element name="svcMenu" type="epp:svcMenuType" />
+      <element name="dcp" type="epp:dcpType" />
+    </sequence>
+  </complexType>
+  <!--
+   Server IDs are strings with minimum and maximum length restrictions.
+   -->
+  <simpleType name="sIDType">
+    <restriction base="normalizedString">
+      <minLength value="3" />
+      <maxLength value="64" />
+    </restriction>
+  </simpleType>
+  <!--
+   A server greeting identifies available object services.
+   -->
+  <complexType name="svcMenuType">
+    <sequence>
+      <element name="version" type="epp:versionType" maxOccurs="unbounded" />
+      <element name="lang" type="language" maxOccurs="unbounded" />
+      <element name="objURI" type="anyURI" maxOccurs="unbounded" />
+      <element name="svcExtension" type="epp:extURIType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   Data Collection Policy types.
+   -->
+  <complexType name="dcpType">
+    <sequence>
+      <element name="access" type="epp:dcpAccessType" />
+      <element name="statement" type="epp:dcpStatementType"
+      maxOccurs="unbounded" />
+      <element name="expiry" type="epp:dcpExpiryType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <complexType name="dcpAccessType">
+    <choice>
+      <element name="all" />
+      <element name="none" />
+      <element name="null" />
+      <element name="other" />
+      <element name="personal" />
+      <element name="personalAndOther" />
+    </choice>
+  </complexType>
+  <complexType name="dcpStatementType">
+    <sequence>
+      <element name="purpose" type="epp:dcpPurposeType" />
+      <element name="recipient" type="epp:dcpRecipientType" />
+      <element name="retention" type="epp:dcpRetentionType" />
+    </sequence>
+  </complexType>
+  <complexType name="dcpPurposeType">
+    <sequence>
+      <element name="admin" minOccurs="0" />
+      <element name="contact" minOccurs="0" />
+      <element name="other" minOccurs="0" />
+      <element name="prov" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <complexType name="dcpRecipientType">
+    <sequence>
+      <element name="other" minOccurs="0" />
+      <element name="ours" type="epp:dcpOursType" minOccurs="0"
+      maxOccurs="unbounded" />
+      <element name="public" minOccurs="0" />
+      <element name="same" minOccurs="0" />
+      <element name="unrelated" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <complexType name="dcpOursType">
+    <sequence>
+      <element name="recDesc" type="epp:dcpRecDescType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <simpleType name="dcpRecDescType">
+    <restriction base="token">
+      <minLength value="1" />
+      <maxLength value="255" />
+    </restriction>
+  </simpleType>
+  <complexType name="dcpRetentionType">
+    <choice>
+      <element name="business" />
+      <element name="indefinite" />
+      <element name="legal" />
+      <element name="none" />
+      <element name="stated" />
+    </choice>
+  </complexType>
+  <complexType name="dcpExpiryType">
+    <choice>
+      <element name="absolute" type="dateTime" />
+      <element name="relative" type="duration" />
+    </choice>
+  </complexType>
+  <!--
+   Extension framework types.
+   -->
+  <complexType name="extAnyType">
+    <sequence>
+      <any namespace="##other" maxOccurs="unbounded" />
+    </sequence>
+  </complexType>
+  <complexType name="extURIType">
+    <sequence>
+      <element name="extURI" type="anyURI" maxOccurs="unbounded" />
+    </sequence>
+  </complexType>
+  <!--
+   An EPP version number is a dotted pair of decimal numbers.
+   -->
+  <simpleType name="versionType">
+    <restriction base="token">
+      <pattern value="[1-9]+\.[0-9]+" />
+      <enumeration value="1.0" />
+    </restriction>
+  </simpleType>
+  <!--
+   Command types.
+   -->
+  <complexType name="commandType">
+    <sequence>
+      <choice>
+        <element name="check" type="epp:readWriteType" />
+        <element name="create" type="epp:readWriteType" />
+        <element name="delete" type="epp:readWriteType" />
+        <element name="info" type="epp:readWriteType" />
+        <element name="login" type="epp:loginType" />
+        <element name="logout" />
+        <element name="poll" type="epp:pollType" />
+        <element name="renew" type="epp:readWriteType" />
+        <element name="transfer" type="epp:transferType" />
+        <element name="update" type="epp:readWriteType" />
+      </choice>
+      <element name="extension" type="epp:extAnyType" minOccurs="0" />
+      <element name="clTRID" type="epp:trIDStringType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   The <login> command.
+   -->
+  <complexType name="loginType">
+    <sequence>
+      <element name="clID" type="eppcom:clIDType" />
+      <element name="pw" type="epp:pwType" />
+      <element name="newPW" type="epp:pwType" minOccurs="0" />
+      <element name="options" type="epp:credsOptionsType" />
+      <element name="svcs" type="epp:loginSvcType" />
+    </sequence>
+  </complexType>
+  <complexType name="credsOptionsType">
+    <sequence>
+      <element name="version" type="epp:versionType" />
+      <element name="lang" type="language" />
+    </sequence>
+  </complexType>
+  <simpleType name="pwType">
+    <restriction base="token">
+      <minLength value="6" />
+      <maxLength value="16" />
+    </restriction>
+  </simpleType>
+  <complexType name="loginSvcType">
+    <sequence>
+      <element name="objURI" type="anyURI" maxOccurs="unbounded" />
+      <element name="svcExtension" type="epp:extURIType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   The <poll> command.
+   -->
+  <complexType name="pollType">
+    <attribute name="op" type="epp:pollOpType" use="required" />
+    <attribute name="msgID" type="token" />
+  </complexType>
+  <simpleType name="pollOpType">
+    <restriction base="token">
+      <enumeration value="ack" />
+      <enumeration value="req" />
+    </restriction>
+  </simpleType>
+  <!--
+   The <transfer> command.  This is object-specific, and uses attributes
+   to identify the requested operation.
+   -->
+  <complexType name="transferType">
+    <sequence>
+      <any namespace="##other" />
+    </sequence>
+    <attribute name="op" type="epp:transferOpType" use="required" />
+  </complexType>
+  <simpleType name="transferOpType">
+    <restriction base="token">
+      <enumeration value="approve" />
+      <enumeration value="cancel" />
+      <enumeration value="query" />
+      <enumeration value="reject" />
+      <enumeration value="request" />
+    </restriction>
+  </simpleType>
+  <!--
+   All other object-centric commands.  EPP doesn't specify the syntax or
+   semantics of object-centric command elements.  The elements MUST be
+   described in detail in another schema specific to the object.
+   -->
+  <complexType name="readWriteType">
+    <sequence>
+      <any namespace="##other" />
+    </sequence>
+  </complexType>
+  <complexType name="trIDType">
+    <sequence>
+      <element name="clTRID" type="epp:trIDStringType" minOccurs="0" />
+      <element name="svTRID" type="epp:trIDStringType" />
+    </sequence>
+  </complexType>
+  <simpleType name="trIDStringType">
+    <restriction base="token">
+      <minLength value="3" />
+      <maxLength value="64" />
+    </restriction>
+  </simpleType>
+  <!--
+   Response types.
+   -->
+  <complexType name="responseType">
+    <sequence>
+      <element name="result" type="epp:resultType" maxOccurs="unbounded" />
+      <element name="msgQ" type="epp:msgQType" minOccurs="0" />
+      <element name="resData" type="epp:extAnyType" minOccurs="0" />
+      <element name="extension" type="epp:extAnyType" minOccurs="0" />
+      <element name="trID" type="epp:trIDType" />
+    </sequence>
+  </complexType>
+  <complexType name="resultType">
+    <sequence>
+      <element name="msg" type="epp:msgType" />
+      <choice minOccurs="0" maxOccurs="unbounded">
+        <element name="value" type="epp:errValueType" />
+        <element name="extValue" type="epp:extErrValueType" />
+      </choice>
+    </sequence>
+    <attribute name="code" type="epp:resultCodeType" use="required" />
+  </complexType>
+  <complexType name="errValueType" mixed="true">
+    <sequence>
+      <any namespace="##any" processContents="skip" />
+    </sequence>
+    <anyAttribute namespace="##any" processContents="skip" />
+  </complexType>
+  <complexType name="extErrValueType">
+    <sequence>
+      <element name="value" type="epp:errValueType" />
+      <element name="reason" type="epp:msgType" />
+    </sequence>
+  </complexType>
+  <complexType name="msgQType">
+    <sequence>
+      <element name="qDate" type="dateTime" minOccurs="0" />
+      <element name="msg" type="epp:mixedMsgType" minOccurs="0" />
+    </sequence>
+    <attribute name="count" type="unsignedLong" use="required" />
+    <attribute name="id" type="eppcom:minTokenType" use="required" />
+  </complexType>
+  <complexType name="mixedMsgType" mixed="true">
+    <sequence>
+      <any processContents="skip" minOccurs="0" maxOccurs="unbounded" />
+    </sequence>
+    <attribute name="lang" type="language" default="en" />
+  </complexType>
+  <!--
+   Human-readable text may be expressed in languages other than English.
+   -->
+  <complexType name="msgType">
+    <simpleContent>
+      <extension base="normalizedString">
+        <attribute name="lang" type="language" default="en" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <!--
+   EPP result codes.
+   -->
+  <simpleType name="resultCodeType">
+    <restriction base="unsignedShort">
+      <enumeration value="1000" />
+      <enumeration value="1001" />
+      <enumeration value="1300" />
+      <enumeration value="1301" />
+      <enumeration value="1500" />
+      <enumeration value="2000" />
+      <enumeration value="2001" />
+      <enumeration value="2002" />
+      <enumeration value="2003" />
+      <enumeration value="2004" />
+      <enumeration value="2005" />
+      <enumeration value="2100" />
+      <enumeration value="2101" />
+      <enumeration value="2102" />
+      <enumeration value="2103" />
+      <enumeration value="2104" />
+      <enumeration value="2105" />
+      <enumeration value="2106" />
+      <enumeration value="2200" />
+      <enumeration value="2201" />
+      <enumeration value="2202" />
+      <enumeration value="2300" />
+      <enumeration value="2301" />
+      <enumeration value="2302" />
+      <enumeration value="2303" />
+      <enumeration value="2304" />
+      <enumeration value="2305" />
+      <enumeration value="2306" />
+      <enumeration value="2307" />
+      <enumeration value="2308" />
+      <enumeration value="2400" />
+      <enumeration value="2500" />
+      <enumeration value="2501" />
+      <enumeration value="2502" />
+    </restriction>
+  </simpleType>
+  <!--
+   End of schema.
+   -->
+</schema>
+
+<?xml version="1.0" encoding="utf-8"?>
+<schema targetNamespace="urn:ietf:params:xml:ns:domain-1.0"
+xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
+xmlns:host="urn:ietf:params:xml:ns:host-1.0"
+xmlns:epp="urn:ietf:params:xml:ns:epp-1.0"
+xmlns:eppcom="urn:ietf:params:xml:ns:eppcom-1.0"
+elementFormDefault="qualified">
+  <!--
+   Import common element types.
+   -->
+  <import namespace="urn:ietf:params:xml:ns:eppcom-1.0" />
+  <import namespace="urn:ietf:params:xml:ns:epp-1.0" />
+  <import namespace="urn:ietf:params:xml:ns:host-1.0" />
+  <annotation>
+    <documentation>Extensible Provisioning Protocol v1.0 domain provisioning
+    schema.</documentation>
+  </annotation>
+  <!--
+   Child elements found in EPP commands.
+   -->
+  <element name="check" type="domain:mNameType" />
+  <element name="create" type="domain:createType" />
+  <element name="delete" type="domain:sNameType" />
+  <element name="info" type="domain:infoType" />
+  <element name="renew" type="domain:renewType" />
+  <element name="transfer" type="domain:transferType" />
+  <element name="update" type="domain:updateType" />
+  <!--
+   Child elements of the <create> command.
+   -->
+  <complexType name="createType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" />
+      <element name="period" type="domain:periodType" minOccurs="0" />
+      <element name="ns" type="domain:nsType" minOccurs="0" />
+      <element name="registrant" type="eppcom:clIDType" minOccurs="0" />
+      <element name="contact" type="domain:contactType" minOccurs="0"
+      maxOccurs="unbounded" />
+      <element name="authInfo" type="domain:authInfoType" />
+    </sequence>
+  </complexType>
+  <complexType name="periodType">
+    <simpleContent>
+      <extension base="domain:pLimitType">
+        <attribute name="unit" type="domain:pUnitType" use="required" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <simpleType name="pLimitType">
+    <restriction base="unsignedShort">
+      <minInclusive value="1" />
+      <maxInclusive value="99" />
+    </restriction>
+  </simpleType>
+  <simpleType name="pUnitType">
+    <restriction base="token">
+      <enumeration value="y" />
+      <enumeration value="m" />
+    </restriction>
+  </simpleType>
+  <complexType name="nsType">
+    <choice>
+      <element name="hostObj" type="eppcom:labelType" maxOccurs="unbounded" />
+      <element name="hostAttr" type="domain:hostAttrType"
+      maxOccurs="unbounded" />
+    </choice>
+  </complexType>
+  <!--
+   Name servers are either host objects or attributes.
+   -->
+  <complexType name="hostAttrType">
+    <sequence>
+      <element name="hostName" type="eppcom:labelType" />
+      <element name="hostAddr" type="host:addrType" minOccurs="0"
+      maxOccurs="unbounded" />
+    </sequence>
+  </complexType>
+  <!--
+   If attributes, addresses are optional and follow the
+   structure defined in the host mapping.
+   -->
+  <complexType name="contactType">
+    <simpleContent>
+      <extension base="eppcom:clIDType">
+        <attribute name="type" type="domain:contactAttrType" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <simpleType name="contactAttrType">
+    <restriction base="token">
+      <enumeration value="admin" />
+      <enumeration value="billing" />
+      <enumeration value="tech" />
+    </restriction>
+  </simpleType>
+  <complexType name="authInfoType">
+    <choice>
+      <element name="pw" type="eppcom:pwAuthInfoType" />
+      <element name="ext" type="eppcom:extAuthInfoType" />
+    </choice>
+  </complexType>
+  <!--
+   Child element of commands that require a single name.
+   -->
+  <complexType name="sNameType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" />
+    </sequence>
+  </complexType>
+  <!--
+   Child element of commands that accept multiple names.
+   -->
+  <complexType name="mNameType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" maxOccurs="unbounded" />
+    </sequence>
+  </complexType>
+  <!--
+   Child elements of the <info> command.
+   -->
+  <complexType name="infoType">
+    <sequence>
+      <element name="name" type="domain:infoNameType" />
+      <element name="authInfo" type="domain:authInfoType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <complexType name="infoNameType">
+    <simpleContent>
+      <extension base="eppcom:labelType">
+        <attribute name="hosts" type="domain:hostsType" default="all" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <simpleType name="hostsType">
+    <restriction base="token">
+      <enumeration value="all" />
+      <enumeration value="del" />
+      <enumeration value="none" />
+      <enumeration value="sub" />
+    </restriction>
+  </simpleType>
+  <!--
+   Child elements of the <renew> command.
+   -->
+  <complexType name="renewType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" />
+      <element name="curExpDate" type="date" />
+      <element name="period" type="domain:periodType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   Child elements of the <transfer> command.
+   -->
+  <complexType name="transferType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" />
+      <element name="period" type="domain:periodType" minOccurs="0" />
+      <element name="authInfo" type="domain:authInfoType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   Child elements of the <update> command.
+   -->
+  <complexType name="updateType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" />
+      <element name="add" type="domain:addRemType" minOccurs="0" />
+      <element name="rem" type="domain:addRemType" minOccurs="0" />
+      <element name="chg" type="domain:chgType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   Data elements that can be added or removed.
+   -->
+  <complexType name="addRemType">
+    <sequence>
+      <element name="ns" type="domain:nsType" minOccurs="0" />
+      <element name="contact" type="domain:contactType" minOccurs="0"
+      maxOccurs="unbounded" />
+      <element name="status" type="domain:statusType" minOccurs="0"
+      maxOccurs="11" />
+    </sequence>
+  </complexType>
+  <!--
+   Data elements that can be changed.
+   -->
+  <complexType name="chgType">
+    <sequence>
+      <element name="registrant" type="domain:clIDChgType" minOccurs="0" />
+      <element name="authInfo" type="domain:authInfoChgType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   Allow the registrant value to be nullified by changing the
+   minLength restriction to "0".
+   -->
+  <simpleType name="clIDChgType">
+    <restriction base="token">
+      <minLength value="0" />
+      <maxLength value="16" />
+    </restriction>
+  </simpleType>
+  <!--
+   Allow the authInfo value to be nullified by including an
+   empty element within the choice.
+   -->
+  <complexType name="authInfoChgType">
+    <choice>
+      <element name="pw" type="eppcom:pwAuthInfoType" />
+      <element name="ext" type="eppcom:extAuthInfoType" />
+      <element name="null" />
+    </choice>
+  </complexType>
+  <!--
+   Child response elements.
+   -->
+  <element name="chkData" type="domain:chkDataType" />
+  <element name="creData" type="domain:creDataType" />
+  <element name="infData" type="domain:infDataType" />
+  <element name="panData" type="domain:panDataType" />
+  <element name="renData" type="domain:renDataType" />
+  <element name="trnData" type="domain:trnDataType" />
+  <!--
+   <check> response elements.
+   -->
+  <complexType name="chkDataType">
+    <sequence>
+      <element name="cd" type="domain:checkType" maxOccurs="unbounded" />
+    </sequence>
+  </complexType>
+  <complexType name="checkType">
+    <sequence>
+      <element name="name" type="domain:checkNameType" />
+      <element name="reason" type="eppcom:reasonType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <complexType name="checkNameType">
+    <simpleContent>
+      <extension base="eppcom:labelType">
+        <attribute name="avail" type="boolean" use="required" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <!--
+   <create> response elements.
+   -->
+  <complexType name="creDataType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" />
+      <element name="crDate" type="dateTime" />
+      <element name="exDate" type="dateTime" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   <info> response elements.
+   -->
+  <complexType name="infDataType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" />
+      <element name="roid" type="eppcom:roidType" />
+      <element name="status" type="domain:statusType" minOccurs="0"
+      maxOccurs="11" />
+      <element name="registrant" type="eppcom:clIDType" minOccurs="0" />
+      <element name="contact" type="domain:contactType" minOccurs="0"
+      maxOccurs="unbounded" />
+      <element name="ns" type="domain:nsType" minOccurs="0" />
+      <element name="host" type="eppcom:labelType" minOccurs="0"
+      maxOccurs="unbounded" />
+      <element name="clID" type="eppcom:clIDType" />
+      <element name="crID" type="eppcom:clIDType" minOccurs="0" />
+      <element name="crDate" type="dateTime" minOccurs="0" />
+      <element name="upID" type="eppcom:clIDType" minOccurs="0" />
+      <element name="upDate" type="dateTime" minOccurs="0" />
+      <element name="exDate" type="dateTime" minOccurs="0" />
+      <element name="trDate" type="dateTime" minOccurs="0" />
+      <element name="authInfo" type="domain:authInfoType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   Status is a combination of attributes and an optional
+   human-readable message that may be expressed in languages other
+   than English.
+   -->
+  <complexType name="statusType">
+    <simpleContent>
+      <extension base="normalizedString">
+        <attribute name="s" type="domain:statusValueType" use="required" />
+        <attribute name="lang" type="language" default="en" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <simpleType name="statusValueType">
+    <restriction base="token">
+      <enumeration value="clientDeleteProhibited" />
+      <enumeration value="clientHold" />
+      <enumeration value="clientRenewProhibited" />
+      <enumeration value="clientTransferProhibited" />
+      <enumeration value="clientUpdateProhibited" />
+      <enumeration value="inactive" />
+      <enumeration value="ok" />
+      <enumeration value="pendingCreate" />
+      <enumeration value="pendingDelete" />
+      <enumeration value="pendingRenew" />
+      <enumeration value="pendingTransfer" />
+      <enumeration value="pendingUpdate" />
+      <enumeration value="serverDeleteProhibited" />
+      <enumeration value="serverHold" />
+      <enumeration value="serverRenewProhibited" />
+      <enumeration value="serverTransferProhibited" />
+      <enumeration value="serverUpdateProhibited" />
+    </restriction>
+  </simpleType>
+  <!--
+   Pending action notification response elements.
+   -->
+  <complexType name="panDataType">
+    <sequence>
+      <element name="name" type="domain:paNameType" />
+      <element name="paTRID" type="epp:trIDType" />
+      <element name="paDate" type="dateTime" />
+    </sequence>
+  </complexType>
+  <complexType name="paNameType">
+    <simpleContent>
+      <extension base="eppcom:labelType">
+        <attribute name="paResult" type="boolean" use="required" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <!--
+   <renew> response elements.
+   -->
+  <complexType name="renDataType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" />
+      <element name="exDate" type="dateTime" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   <transfer> response elements.
+   -->
+  <complexType name="trnDataType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" />
+      <element name="trStatus" type="eppcom:trStatusType" />
+      <element name="reID" type="eppcom:clIDType" />
+      <element name="reDate" type="dateTime" />
+      <element name="acID" type="eppcom:clIDType" />
+      <element name="acDate" type="dateTime" />
+      <element name="exDate" type="dateTime" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   End of schema.
+   -->
+</schema>
+
+<?xml version="1.0" encoding="utf-8"?>
+<schema targetNamespace="urn:ietf:params:xml:ns:host-1.0"
+xmlns:host="urn:ietf:params:xml:ns:host-1.0"
+xmlns:epp="urn:ietf:params:xml:ns:epp-1.0"
+xmlns:eppcom="urn:ietf:params:xml:ns:eppcom-1.0"
+elementFormDefault="qualified">
+  <!--
+   Import common element types.
+   -->
+  <import namespace="urn:ietf:params:xml:ns:eppcom-1.0" />
+  <import namespace="urn:ietf:params:xml:ns:epp-1.0" />
+  <annotation>
+    <documentation>Extensible Provisioning Protocol v1.0 host provisioning
+    schema.</documentation>
+  </annotation>
+  <!--
+   Child elements found in EPP commands.
+   -->
+  <element name="check" type="host:mNameType" />
+  <element name="create" type="host:createType" />
+  <element name="delete" type="host:sNameType" />
+  <element name="info" type="host:sNameType" />
+  <element name="update" type="host:updateType" />
+  <!--
+   Child elements of the <create> command.
+   -->
+  <complexType name="createType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" />
+      <element name="addr" type="host:addrType" minOccurs="0"
+      maxOccurs="unbounded" />
+    </sequence>
+  </complexType>
+  <complexType name="addrType">
+    <simpleContent>
+      <extension base="host:addrStringType">
+        <attribute name="ip" type="host:ipType" default="v4" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <simpleType name="addrStringType">
+    <restriction base="token">
+      <minLength value="3" />
+      <maxLength value="45" />
+    </restriction>
+  </simpleType>
+  <simpleType name="ipType">
+    <restriction base="token">
+      <enumeration value="v4" />
+      <enumeration value="v6" />
+    </restriction>
+  </simpleType>
+  <!--
+   Child elements of the <delete> and <info> commands.
+   -->
+  <complexType name="sNameType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" />
+    </sequence>
+  </complexType>
+  <!--
+   Child element of commands that accept multiple names.
+   -->
+  <complexType name="mNameType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" maxOccurs="unbounded" />
+    </sequence>
+  </complexType>
+  <!--
+   Child elements of the <update> command.
+   -->
+  <complexType name="updateType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" />
+      <element name="add" type="host:addRemType" minOccurs="0" />
+      <element name="rem" type="host:addRemType" minOccurs="0" />
+      <element name="chg" type="host:chgType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   Data elements that can be added or removed.
+   -->
+  <complexType name="addRemType">
+    <sequence>
+      <element name="addr" type="host:addrType" minOccurs="0"
+      maxOccurs="unbounded" />
+      <element name="status" type="host:statusType" minOccurs="0"
+      maxOccurs="7" />
+    </sequence>
+  </complexType>
+  <!--
+   Data elements that can be changed.
+   -->
+  <complexType name="chgType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" />
+    </sequence>
+  </complexType>
+  <!--
+   Child response elements.
+   -->
+  <element name="chkData" type="host:chkDataType" />
+  <element name="creData" type="host:creDataType" />
+  <element name="infData" type="host:infDataType" />
+  <element name="panData" type="host:panDataType" />
+  <!--
+   <check> response elements.
+   -->
+  <complexType name="chkDataType">
+    <sequence>
+      <element name="cd" type="host:checkType" maxOccurs="unbounded" />
+    </sequence>
+  </complexType>
+  <complexType name="checkType">
+    <sequence>
+      <element name="name" type="host:checkNameType" />
+      <element name="reason" type="eppcom:reasonType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <complexType name="checkNameType">
+    <simpleContent>
+      <extension base="eppcom:labelType">
+        <attribute name="avail" type="boolean" use="required" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <!--
+   <create> response elements.
+   -->
+  <complexType name="creDataType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" />
+      <element name="crDate" type="dateTime" />
+    </sequence>
+  </complexType>
+  <!--
+   <info> response elements.
+   -->
+  <complexType name="infDataType">
+    <sequence>
+      <element name="name" type="eppcom:labelType" />
+      <element name="roid" type="eppcom:roidType" />
+      <element name="status" type="host:statusType" maxOccurs="7" />
+      <element name="addr" type="host:addrType" minOccurs="0"
+      maxOccurs="unbounded" />
+      <element name="clID" type="eppcom:clIDType" />
+      <element name="crID" type="eppcom:clIDType" />
+      <element name="crDate" type="dateTime" />
+      <element name="upID" type="eppcom:clIDType" minOccurs="0" />
+      <element name="upDate" type="dateTime" minOccurs="0" />
+      <element name="trDate" type="dateTime" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   Status is a combination of attributes and an optional human-readable
+   message that may be expressed in languages other than English.
+   -->
+  <complexType name="statusType">
+    <simpleContent>
+      <extension base="normalizedString">
+        <attribute name="s" type="host:statusValueType" use="required" />
+        <attribute name="lang" type="language" default="en" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <simpleType name="statusValueType">
+    <restriction base="token">
+      <enumeration value="clientDeleteProhibited" />
+      <enumeration value="clientUpdateProhibited" />
+      <enumeration value="linked" />
+      <enumeration value="ok" />
+      <enumeration value="pendingCreate" />
+      <enumeration value="pendingDelete" />
+      <enumeration value="pendingTransfer" />
+      <enumeration value="pendingUpdate" />
+      <enumeration value="serverDeleteProhibited" />
+      <enumeration value="serverUpdateProhibited" />
+    </restriction>
+  </simpleType>
+  <!--
+   Pending action notification response elements.
+   -->
+  <complexType name="panDataType">
+    <sequence>
+      <element name="name" type="host:paNameType" />
+      <element name="paTRID" type="epp:trIDType" />
+      <element name="paDate" type="dateTime" />
+    </sequence>
+  </complexType>
+  <complexType name="paNameType">
+    <simpleContent>
+      <extension base="eppcom:labelType">
+        <attribute name="paResult" type="boolean" use="required" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <!--
+   End of schema.
+   -->
+</schema>
+
+<?xml version="1.0" encoding="utf-8"?>
+<schema targetNamespace="urn:ietf:params:xml:ns:contact-1.0"
+xmlns:contact="urn:ietf:params:xml:ns:contact-1.0"
+xmlns:epp="urn:ietf:params:xml:ns:epp-1.0"
+xmlns:eppcom="urn:ietf:params:xml:ns:eppcom-1.0"
+elementFormDefault="qualified">
+  <!--
+   Import common element types.
+   -->
+  <import namespace="urn:ietf:params:xml:ns:eppcom-1.0" />
+  <import namespace="urn:ietf:params:xml:ns:epp-1.0" />
+  <annotation>
+    <documentation>Extensible Provisioning Protocol v1.0 contact provisioning
+    schema.</documentation>
+  </annotation>
+  <!--
+   Child elements found in EPP commands.
+   -->
+  <element name="check" type="contact:mIDType" />
+  <element name="create" type="contact:createType" />
+  <element name="delete" type="contact:sIDType" />
+  <element name="info" type="contact:authIDType" />
+  <element name="transfer" type="contact:authIDType" />
+  <element name="update" type="contact:updateType" />
+  <!--
+   Utility types.
+   -->
+  <simpleType name="ccType">
+    <restriction base="token">
+      <length value="2" />
+    </restriction>
+  </simpleType>
+  <complexType name="e164Type">
+    <simpleContent>
+      <extension base="contact:e164StringType">
+        <attribute name="x" type="token" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <simpleType name="e164StringType">
+    <restriction base="token">
+      <pattern value="(\+[0-9]{1,3}\.[0-9]{1,14})?" />
+      <maxLength value="17" />
+    </restriction>
+  </simpleType>
+  <simpleType name="pcType">
+    <restriction base="token">
+      <maxLength value="16" />
+    </restriction>
+  </simpleType>
+  <simpleType name="postalLineType">
+    <restriction base="normalizedString">
+      <minLength value="1" />
+      <maxLength value="255" />
+    </restriction>
+  </simpleType>
+  <simpleType name="optPostalLineType">
+    <restriction base="normalizedString">
+      <maxLength value="255" />
+    </restriction>
+  </simpleType>
+  <!--
+   Child elements of the <create> command.
+   -->
+  <complexType name="createType">
+    <sequence>
+      <element name="id" type="eppcom:clIDType" />
+      <element name="postalInfo" type="contact:postalInfoType" maxOccurs="2" />
+      <element name="voice" type="contact:e164Type" minOccurs="0" />
+      <element name="fax" type="contact:e164Type" minOccurs="0" />
+      <element name="email" type="eppcom:minTokenType" />
+      <element name="authInfo" type="contact:authInfoType" />
+      <element name="disclose" type="contact:discloseType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <complexType name="postalInfoType">
+    <sequence>
+      <element name="name" type="contact:postalLineType" />
+      <element name="org" type="contact:optPostalLineType" minOccurs="0" />
+      <element name="addr" type="contact:addrType" />
+    </sequence>
+    <attribute name="type" type="contact:postalInfoEnumType" use="required" />
+  </complexType>
+  <simpleType name="postalInfoEnumType">
+    <restriction base="token">
+      <enumeration value="loc" />
+      <enumeration value="int" />
+    </restriction>
+  </simpleType>
+  <complexType name="addrType">
+    <sequence>
+      <element name="street" type="contact:optPostalLineType" minOccurs="0"
+      maxOccurs="3" />
+      <element name="city" type="contact:postalLineType" />
+      <element name="sp" type="contact:optPostalLineType" minOccurs="0" />
+      <element name="pc" type="contact:pcType" minOccurs="0" />
+      <element name="cc" type="contact:ccType" />
+    </sequence>
+  </complexType>
+  <complexType name="authInfoType">
+    <choice>
+      <element name="pw" type="eppcom:pwAuthInfoType" />
+      <element name="ext" type="eppcom:extAuthInfoType" />
+    </choice>
+  </complexType>
+  <complexType name="discloseType">
+    <sequence>
+      <element name="name" type="contact:intLocType" minOccurs="0"
+      maxOccurs="2" />
+      <element name="org" type="contact:intLocType" minOccurs="0"
+      maxOccurs="2" />
+      <element name="addr" type="contact:intLocType" minOccurs="0"
+      maxOccurs="2" />
+      <element name="voice" minOccurs="0" />
+      <element name="fax" minOccurs="0" />
+      <element name="email" minOccurs="0" />
+    </sequence>
+    <attribute name="flag" type="boolean" use="required" />
+  </complexType>
+  <complexType name="intLocType">
+    <attribute name="type" type="contact:postalInfoEnumType" use="required" />
+  </complexType>
+  <!--
+   Child element of commands that require only an identifier.
+   -->
+  <complexType name="sIDType">
+    <sequence>
+      <element name="id" type="eppcom:clIDType" />
+    </sequence>
+  </complexType>
+  <!--
+   Child element of commands that accept multiple identifiers.
+   -->
+  <complexType name="mIDType">
+    <sequence>
+      <element name="id" type="eppcom:clIDType" maxOccurs="unbounded" />
+    </sequence>
+  </complexType>
+  <!--
+   Child elements of the <info> and <transfer> commands.
+   -->
+  <complexType name="authIDType">
+    <sequence>
+      <element name="id" type="eppcom:clIDType" />
+      <element name="authInfo" type="contact:authInfoType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   Child elements of the <update> command.
+   -->
+  <complexType name="updateType">
+    <sequence>
+      <element name="id" type="eppcom:clIDType" />
+      <element name="add" type="contact:addRemType" minOccurs="0" />
+      <element name="rem" type="contact:addRemType" minOccurs="0" />
+      <element name="chg" type="contact:chgType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   Data elements that can be added or removed.
+   -->
+  <complexType name="addRemType">
+    <sequence>
+      <element name="status" type="contact:statusType" maxOccurs="7" />
+    </sequence>
+  </complexType>
+  <!--
+   Data elements that can be changed.
+   -->
+  <complexType name="chgType">
+    <sequence>
+      <element name="postalInfo" type="contact:chgPostalInfoType" minOccurs="0"
+      maxOccurs="2" />
+      <element name="voice" type="contact:e164Type" minOccurs="0" />
+      <element name="fax" type="contact:e164Type" minOccurs="0" />
+      <element name="email" type="eppcom:minTokenType" minOccurs="0" />
+      <element name="authInfo" type="contact:authInfoType" minOccurs="0" />
+      <element name="disclose" type="contact:discloseType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <complexType name="chgPostalInfoType">
+    <sequence>
+      <element name="name" type="contact:postalLineType" minOccurs="0" />
+      <element name="org" type="contact:optPostalLineType" minOccurs="0" />
+      <element name="addr" type="contact:addrType" minOccurs="0" />
+    </sequence>
+    <attribute name="type" type="contact:postalInfoEnumType" use="required" />
+  </complexType>
+  <!--
+   Child response elements.
+   -->
+  <element name="chkData" type="contact:chkDataType" />
+  <element name="creData" type="contact:creDataType" />
+  <element name="infData" type="contact:infDataType" />
+  <element name="panData" type="contact:panDataType" />
+  <element name="trnData" type="contact:trnDataType" />
+  <!--
+   <check> response elements.
+   -->
+  <complexType name="chkDataType">
+    <sequence>
+      <element name="cd" type="contact:checkType" maxOccurs="unbounded" />
+    </sequence>
+  </complexType>
+  <complexType name="checkType">
+    <sequence>
+      <element name="id" type="contact:checkIDType" />
+      <element name="reason" type="eppcom:reasonType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <complexType name="checkIDType">
+    <simpleContent>
+      <extension base="eppcom:clIDType">
+        <attribute name="avail" type="boolean" use="required" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <!--
+   <create> response elements.
+   -->
+  <complexType name="creDataType">
+    <sequence>
+      <element name="id" type="eppcom:clIDType" />
+      <element name="crDate" type="dateTime" />
+    </sequence>
+  </complexType>
+  <!--
+   <info> response elements.
+   -->
+  <complexType name="infDataType">
+    <sequence>
+      <element name="id" type="eppcom:clIDType" />
+      <element name="roid" type="eppcom:roidType" />
+      <element name="status" type="contact:statusType" maxOccurs="7" />
+      <element name="postalInfo" type="contact:postalInfoType" maxOccurs="2" />
+      <element name="voice" type="contact:e164Type" minOccurs="0" />
+      <element name="fax" type="contact:e164Type" minOccurs="0" />
+      <element name="email" type="eppcom:minTokenType" />
+      <element name="clID" type="eppcom:clIDType" />
+      <element name="crID" type="eppcom:clIDType" />
+      <element name="crDate" type="dateTime" />
+      <element name="upID" type="eppcom:clIDType" minOccurs="0" />
+      <element name="upDate" type="dateTime" minOccurs="0" />
+      <element name="trDate" type="dateTime" minOccurs="0" />
+      <element name="authInfo" type="contact:authInfoType" minOccurs="0" />
+      <element name="disclose" type="contact:discloseType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <!--
+   Status is a combination of attributes and an optional human-readable
+   message that may be expressed in languages other than English.
+   -->
+  <complexType name="statusType">
+    <simpleContent>
+      <extension base="normalizedString">
+        <attribute name="s" type="contact:statusValueType" use="required" />
+        <attribute name="lang" type="language" default="en" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <simpleType name="statusValueType">
+    <restriction base="token">
+      <enumeration value="clientDeleteProhibited" />
+      <enumeration value="clientTransferProhibited" />
+      <enumeration value="clientUpdateProhibited" />
+      <enumeration value="linked" />
+      <enumeration value="ok" />
+      <enumeration value="pendingCreate" />
+      <enumeration value="pendingDelete" />
+      <enumeration value="pendingTransfer" />
+      <enumeration value="pendingUpdate" />
+      <enumeration value="serverDeleteProhibited" />
+      <enumeration value="serverTransferProhibited" />
+      <enumeration value="serverUpdateProhibited" />
+    </restriction>
+  </simpleType>
+  <!--
+   Pending action notification response elements.
+   -->
+  <complexType name="panDataType">
+    <sequence>
+      <element name="id" type="contact:paCLIDType" />
+      <element name="paTRID" type="epp:trIDType" />
+      <element name="paDate" type="dateTime" />
+    </sequence>
+  </complexType>
+  <complexType name="paCLIDType">
+    <simpleContent>
+      <extension base="eppcom:clIDType">
+        <attribute name="paResult" type="boolean" use="required" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <!--
+   <transfer> response elements.
+   -->
+  <complexType name="trnDataType">
+    <sequence>
+      <element name="id" type="eppcom:clIDType" />
+      <element name="trStatus" type="eppcom:trStatusType" />
+      <element name="reID" type="eppcom:clIDType" />
+      <element name="reDate" type="dateTime" />
+      <element name="acID" type="eppcom:clIDType" />
+      <element name="acDate" type="dateTime" />
+    </sequence>
+  </complexType>
+  <!--
+   End of schema.
+   -->
+</schema>
+
+<?xml version="1.0" encoding="utf-8"?>
+<schema targetNamespace="urn:ietf:params:xml:ns:secDNS-1.0"
+xmlns:secDNS="urn:ietf:params:xml:ns:secDNS-1.0"
+elementFormDefault="qualified">
+  <annotation>
+    <documentation>Extensible Provisioning Protocol v1.0 domain name extension
+    schema for provisioning DNS security (DNSSEC) extensions.</documentation>
+  </annotation>
+  <!--
+   Child elements found in EPP commands.
+   -->
+  <element name="create" type="secDNS:dsType" />
+  <element name="update" type="secDNS:updateType" />
+  <!--
+   Child elements of the <create> command.
+   -->
+  <complexType name="dsType">
+    <sequence>
+      <element name="dsData" type="secDNS:dsDataType" maxOccurs="unbounded" />
+    </sequence>
+  </complexType>
+  <complexType name="dsDataType">
+    <sequence>
+      <element name="keyTag" type="unsignedShort" />
+      <element name="alg" type="unsignedByte" />
+      <element name="digestType" type="unsignedByte" />
+      <element name="digest" type="hexBinary" />
+      <element name="maxSigLife" type="secDNS:maxSigLifeType" minOccurs="0" />
+      <element name="keyData" type="secDNS:keyDataType" minOccurs="0" />
+    </sequence>
+  </complexType>
+  <simpleType name="maxSigLifeType">
+    <restriction base="int">
+      <minInclusive value="1" />
+    </restriction>
+  </simpleType>
+  <complexType name="keyDataType">
+    <sequence>
+      <element name="flags" type="unsignedShort" />
+      <element name="protocol" type="unsignedByte" />
+      <element name="alg" type="unsignedByte" />
+      <element name="pubKey" type="secDNS:keyType" />
+    </sequence>
+  </complexType>
+  <simpleType name="keyType">
+    <restriction base="base64Binary">
+      <minLength value="1" />
+    </restriction>
+  </simpleType>
+  <!--
+   Child elements of the <update> command.
+   -->
+  <complexType name="updateType">
+    <choice>
+      <element name="add" type="secDNS:dsType" />
+      <element name="chg" type="secDNS:dsType" />
+      <element name="rem" type="secDNS:remType" />
+    </choice>
+    <attribute name="urgent" type="boolean" default="false" />
+  </complexType>
+  <complexType name="remType">
+    <sequence>
+      <element name="keyTag" type="unsignedShort" maxOccurs="unbounded" />
+    </sequence>
+  </complexType>
+  <!--
+   Child response elements.
+   -->
+  <element name="infData" type="secDNS:dsType" />
+  <!--
+   End of schema.
+   -->
+</schema>
